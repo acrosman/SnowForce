@@ -21,7 +21,7 @@ test('Validate existence of assumed internals', () => {
   expect(preferences.__get__('mainWindow')).toBe(null);
 });
 
-test('Check SetWindow', () => {
+test('Check setWindow', () => {
   // The set window does no validation, so we can set it to any object here.
   const myTestWindow = {
     testwindow: 1,

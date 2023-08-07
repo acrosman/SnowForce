@@ -8,7 +8,7 @@ const sfcalls = require('../sf_calls');
 test('Validate exports', () => {
   // Validate the main elements of the library are here.
   expect(sfcalls).toHaveProperty('handlers');
-  expect(sfcalls).toHaveProperty('setwindow');
+  expect(sfcalls).toHaveProperty('setWindow');
   expect(sfcalls).toHaveProperty('setPreferences');
 
   // Validate the handlers list is correct.
@@ -40,13 +40,13 @@ test('Validate existence of assumed internals', () => {
   expect(sfcalls.__get__('typeResolverBases')).toHaveProperty('reference', 'reference');
 });
 
-test('Check SetWindow', () => {
+test('Check setWindow', () => {
   // The set window does no validation, so we cna set it to any object here.
   const myTestWindow = {
     testwindow: 1,
   };
   expect(sfcalls.__get__('mainWindow')).toBe(null);
-  sfcalls.setwindow(myTestWindow);
+  sfcalls.setWindow(myTestWindow);
   expect(sfcalls.__get__('mainWindow')).toHaveProperty('testwindow', 1);
 });
 
