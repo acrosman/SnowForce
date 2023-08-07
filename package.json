@@ -1,7 +1,7 @@
 {
-  "name": "salesforce2sql",
-  "version": "0.9.0",
-  "description": "Create a database schema from a Salesforce org.",
+  "name": "snowForce",
+  "version": "0.1.0",
+  "description": "Create a Snowfakery recipe from a Salesforce org.",
   "main": "main.js",
   "scripts": {
     "start": "electron-forge start",
@@ -16,7 +16,8 @@
   "keywords": [
     "Electron",
     "JSForce",
-    "Salesforce"
+    "Salesforce",
+    "Snowfakery"
   ],
   "author": "Aaron Crosman <acrosman@gmail.com> (https://spinningcode.org)",
   "license": "MIT",
@@ -31,13 +32,8 @@
     "electron-squirrel-startup": "^1.0.0",
     "fs-extra": "^8.1.0",
     "jquery": "^3.5.1",
-    "jquery.json-viewer": "^1.4.0",
     "jsforce": "^2.0.0-beta.9",
-    "knex": "^2.4.0",
-    "minimist": "^1.2.6",
-    "mysql": "^2.18.1",
-    "pg": "^8.5.1",
-    "sqlite3": "^5.1.5"
+    "minimist": "^1.2.6"
   },
   "devDependencies": {
     "@electron-forge/cli": "^6",
