@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const electron = require('electron'); // eslint-disable-line
 const jsforce = require('jsforce');
-const knex = require('knex');
 
 // Get the dialog library from Electron
 const { dialog } = electron;
@@ -108,7 +107,7 @@ const auditFields = [
  * Sets the window being used for the interface. Responses are sent to this window.
  * @param {*} window The ElectronJS window in use.
  */
-const setwindow = (window) => {
+const setWindow = (window) => {
   mainWindow = window;
 };
 
@@ -179,11 +178,6 @@ const extractPicklistValues = (valueList) => {
   let val;
   for (let i = 0; i < valueList.length; i += 1) {
     val = valueList[i].value;
-    // When https://github.com/knex/knex/issues/4481 resolves, this may create a double escape.
-    if (val.includes("'")) {
-      // When Node 14 support is dropped this can be switched to replaceAll().
-      val = val.replace(/'/g, '\\\'');
-    }
     values.push(val);
   }
   values = [...new Set(values)];
@@ -306,10 +300,6 @@ const buildTable = (table) => {
 
   for (let i = 0; i < fieldNames.length; i += 1) {
     field = fields[fieldNames[i]];
-    // Determine if the field should be indexed.
-    addIndex = (preferences.indexes.lookups && (field.type === 'reference' || field.type === 'id'))
-      || (preferences.indexes.picklists && field.type === 'picklist')
-      || (preferences.indexes.externalIds && field.externalId);
 
     // Resolve SF type to DB type.
     fieldType = resolveFieldType(field.type);
@@ -394,17 +384,7 @@ const buildTable = (table) => {
     }
 
     if (addIndex) {
-      // To avoid prefixing with table name (which can easily violate the length
-      // limit from MySQL and Postgres), use the field name as the column name
-      // which should top out around the same places as the limit (60) unless a
-      // _really_ long package namespace is in play. However, on Sqlite you need
-      // a totally unique name (which is what knex does by default but assumes
-      // unlimited length).
-      let name = `${table._tableName}_${field.name}`;
-      if (name.length > 60) {
-        name = field.name + Math.round((Math.random() * 99999) + 10000);
-      }
-      column.index(name);
+      // to be deleted.
     }
   }
 };
@@ -477,219 +457,6 @@ const saveSchemaToFile = () => {
     });
   }).catch((err) => {
     logMessage('Save', 'Error', `Saved failed after dialog: ${err}`);
-  });
-};
-
-/**
- * Open a save dialogue and select file target for Sqlite3 file.
- */
-const saveSqlite3File = () => {
-  const dialogOptions = {
-    title: 'Select Sqlite3 Database Location',
-    message: 'Create File',
-  };
-
-  dialog.showSaveDialog(mainWindow, dialogOptions).then((response) => {
-    if (response.canceled) { return; }
-
-    let fileName = response.filePath;
-    const extension = path.extname(fileName).toLowerCase();
-    if (extension !== '.sqlite' && extension !== '.db' && extension !== '.sqlite3') {
-      fileName = `${fileName}.sqlite`;
-    }
-
-    mainWindow.webContents.send('response_sqlite3_file', {
-      status: false,
-      message: 'Sqlite3 File Selected',
-      response: {
-        filePath: fileName,
-      },
-    });
-  }).catch((err) => {
-    logMessage('Save', 'Error', `Saved failed after dialog: ${err}`);
-  });
-};
-
-/**
- * Create a database connection using the knex library.
- * @param {*} settings An object with database connections settings.
- * @returns the database connection object.
- */
-const createKnexConnection = (settings) => {
-  // Create database connection.
-  const db = knex({
-    client: settings.type,
-    connection: {
-      host: settings.host,
-      user: settings.username,
-      password: settings.password,
-      database: settings.dbname,
-      port: settings.port,
-      filename: settings.fileName,
-    },
-    useNullAsDefault: true,
-    pool: {
-      min: 0,
-      max: settings.pool,
-    },
-    log: {
-      warn(message) {
-        logMessage('Knex', 'Warn', message);
-      },
-      error(message) {
-        logMessage('Knex', 'Error', message);
-      },
-      deprecate(message) {
-        logMessage('Knex', 'Deprecated', message);
-      },
-      debug(message) {
-        logMessage('Knex', 'Debug', message);
-      },
-    },
-  });
-
-  return db;
-};
-
-/**
- * Tests if we have a valid connection to the database.
- * @param {*} knexDb connection to test.
- * @returns boolean
- * @throws Exception if connection fails.
- */
-const validateConnection = (knexDb) => knexDb.raw('SELECT 1 AS isUp');
-
-/**
- * Save the current database schema to an SQL file.
- * @param {*} settings Current database connection settings.
- */
-const saveSchemaToSql = (settings) => {
-  const db = createKnexConnection(settings);
-  const tables = Object.getOwnPropertyNames(proposedSchema);
-
-  // Simple callback used to generate the DDL statements.
-  const createDbTable = (schema, table) => schema.createTable(table, buildTable)
-    .generateDdlCommands();
-
-  const dialogOptions = {
-    title: 'Save SQL File',
-    message: 'Create File',
-  };
-  dialog.showSaveDialog(mainWindow, dialogOptions).then((response) => {
-    let fileName = response.filePath;
-
-    if (path.extname(fileName).toLowerCase() !== '.sql') {
-      fileName = `${fileName}.sql`;
-    }
-
-    const writeStream = fs.createWriteStream(fileName);
-    writeStream.on('error', (err) => {
-      logMessage('SQL File', 'Error', `Error saving to file ${err}`);
-    });
-    for (let i = 0; i < tables.length; i += 1) {
-      createDbTable(db.schema, tables[i]).then((result) => {
-        logMessage('Schema Save', 'Info', `Created DDL statements for ${tables[i]}`);
-        writeStream.write(`${result.sql[0].sql};\n`);
-      });
-    }
-  });
-};
-
-/**
- * Builds the actual database from generated schema.
- * @param {*} settings Database connection settings.
- */
-const buildDatabase = (settings) => {
-  // Get the collection of tables we're about to create.
-  const tables = Object.getOwnPropertyNames(proposedSchema);
-
-  // Set the connection pool size to be as large as number of tables.
-  settings.pool = tables.length;
-  // Setup Database Connection
-  const db = createKnexConnection(settings);
-
-  // Helper to keep one line of logic for creating the tables.
-  const tableStatuses = {};
-  const createDbTable = (schema, table) => schema.createTable(table, buildTable)
-    .then(() => {
-      tableStatuses[table] = true;
-      if (Object.getOwnPropertyNames(tableStatuses).length === tables.length) {
-        mainWindow.webContents.send('response_db_generated', {
-          status: true,
-          message: 'Database created',
-          responses: tableStatuses,
-        });
-      } else {
-        updateLoader(`Creating ${tables.length} tables, ${Object.getOwnPropertyNames(tableStatuses).length} complete`);
-      }
-    })
-    .catch((err) => {
-      // If the row is too big, replace all varchar (except ref fields) with text and try again.
-      if (err.code === 'ER_TOO_BIG_ROWSIZE') {
-        let changed = false;
-        const tableFields = Object.getOwnPropertyNames(proposedSchema[table]);
-        for (let i = 0; i < tableFields.length; i += 1) {
-          if (resolveFieldType(proposedSchema[table][tableFields[i]].type) === 'string') {
-            proposedSchema[table][tableFields[i]].type = 'text';
-            changed = true;
-          }
-        }
-        // If we updated the schema, try again.
-        if (changed) {
-          logMessage('Database Create', 'Warning', `Proposed ${table} schema had too many string fields for your database. All strings will be text fields instead.`);
-          createDbTable(schema, table);
-        } else {
-          logMessage('Database Create', 'Error', `Unable to create table: ${table}. There are too many columns for the database engine even after converting all text fields to use text storage. \nError ${err.errno}(${err.code}) creating table: ${err.message}. Full statement:\n ${err.sql}`);
-          tableStatuses[table] = false;
-          updateLoader(`Creating ${tables.length} tables, ${Object.getOwnPropertyNames(tableStatuses).length} complete`);
-        }
-      } else if (err.code === 'ER_TOO_MANY_KEYS') {
-        logMessage('Database Create', 'Warning', `Error ${err.errno}(${err.code}) adding keys to ${table}. Table was created but some desired indexes may be missing.`);
-        tableStatuses[table] = true;
-        updateLoader(`Creating ${tables.length} tables, ${Object.getOwnPropertyNames(tableStatuses).length} complete`);
-      } else {
-        logMessage('Database Create', 'Error', `Error ${err.errno}(${err.code}) creating table: ${err.message}.Full statement: \n ${err.sql}`);
-        tableStatuses[table] = false;
-        updateLoader(`Creating ${tables.length} tables, ${Object.getOwnPropertyNames(tableStatuses).length} complete`);
-      }
-      if (Object.getOwnPropertyNames(tableStatuses).length === tables.length) {
-        mainWindow.webContents.send('response_db_generated', {
-          status: true,
-          message: 'Database created',
-          responses: tableStatuses,
-        });
-      }
-      return err;
-    });
-
-  // If we have a valid connection, let's give this a try
-  validateConnection(db).then(() => {
-    updateLoader(`Creating ${tables.length} tables`);
-
-    const dropCallback = (tableName, err) => {
-      if (err) {
-        logMessage('Database', 'Error', `Error dropping existing table ${err}`);
-      } else {
-        updateLoader(`Creating ${tables.length} tables: deleted ${tableName}`);
-        createDbTable(db.schema, tableName);
-      }
-    };
-
-    for (let i = 0; i < tables.length; i += 1) {
-      if (settings.overwrite) {
-        db.schema.dropTableIfExists(tables[i])
-          .asCallback((err) => { dropCallback(tables[i], err); });
-      } else {
-        createDbTable(db.schema, tables[i]);
-      }
-    }
-  }).catch((err) => {
-    logMessage('Database', 'Error', `Error connecting to database: ${err}`);
-    mainWindow.webContents.send('response_db_generated', {
-      status: false,
-      message: `Database creation failed: ${err}`,
-      responses: {},
-    });
   });
 };
 
@@ -857,15 +624,6 @@ const handlers = {
     });
   },
   /**
-   * Connect to a database and set the schema.
-   * @param {*} event Standard message event.
-   * @param {*} args Connection settings.
-   */
-  knex_schema: (event, args) => {
-    buildDatabase(args);
-    logMessage('Database', 'Info', 'Database build started.');
-  },
-  /**
    * Send a log message to message console window.
    * @param {*} event Standard message event.
    * @param {*} args Log arguments.
@@ -891,21 +649,9 @@ const handlers = {
   save_schema: () => {
     saveSchemaToFile();
   },
-  /**
-   * Save the current schema to a SQL file.
-   */
-  save_ddl_sql: (event, args) => {
-    saveSchemaToSql(args);
-  },
-  /**
-   * Select Sqlite3 file location.
-   */
-  select_sqlite3_location: () => {
-    saveSqlite3File();
-  },
 };
 
 // Export setup.
 exports.handlers = handlers;
-exports.setwindow = setwindow;
+exports.setWindow = setWindow;
 exports.setPreferences = setPreferences;
