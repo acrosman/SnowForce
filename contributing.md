@@ -10,7 +10,7 @@ I want to contributors provide the best work they can, so I may provide you feed
 
 ## Getting Started
 
-Salesforce2Sql is an Electron app built using Node.js. If you are familiar with this environment there shouldn't be any surprises here.
+snowForce is an Electron app built using Node.js. If you are familiar with this environment there shouldn't be any surprises here.
 
 You need to have:
 * Node.js (Current LTS versions supported by Electron on supported)
