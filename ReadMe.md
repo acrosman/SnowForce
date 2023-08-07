@@ -1,22 +1,14 @@
-# Salesforce2Sql
+# snowForce
 
-![Lint Status](https://github.com/acrosman/Salesforce2Sql/actions/workflows/lint.yml/badge.svg) ![CodeQL Status](https://github.com/acrosman/Salesforce2Sql/actions/workflows/codeql-analysis.yml/badge.svg) ![Electronegativity Status](https://github.com/acrosman/Salesforce2Sql/actions/workflows/electronegativity.yml/badge.svg) ![Test Status](https://github.com/acrosman/Salesforce2Sql/actions/workflows/tests.yml/badge.svg)
+![Lint Status](https://github.com/acrosman/snowForce/actions/workflows/lint.yml/badge.svg) ![CodeQL Status](https://github.com/acrosman/snowForce/actions/workflows/codeql-analysis.yml/badge.svg) ![Electronegativity Status](https://github.com/acrosman/snowForce/actions/workflows/electronegativity.yml/badge.svg) ![Test Status](https://github.com/acrosman/snowForce/actions/workflows/tests.yml/badge.svg)
 
-This is a tool to generate a SQL schema to match a Salesforce Org Schema.
+This is a tool to generate [Snowfakery](https://snowfakery.readthedocs.io/en/latest/) recipes based on the structure of a Salesforce org and your guidance. snowForce will connect to a Salesforce org, allow you to select a collection of objects, and guide you to generate a Snowfakery recipe.
 
-![Main Interface](documentation/InterfaceScreenshots/MainScreen.png?raw=true)
-
-Salesforce2Sql will connect to a Salesforce org, allow you to select a collection of objects, and have the schema for those objects replicated to a local database. This can be very useful when working on data migration and archiving projects.
-
-_No data is replicated just the schema._
-
-If you are looking for help migrating data between Salesforce Orgs you may want check out the [Salesforce Open Source Commons Data Generation Toolkit Project](https://github.com/SFDO-Community-Sprints/DataGenerationToolkit).
+For example recipes for Snowfakery see the [Salesforce Commons Snowfakery Recipe Templates](https://github.com/SFDO-Community-Sprints/Snowfakery-Recipe-Templates).
 
 ## Getting Started
 
-_There is a [longer getting started guide](https://spinningcode.org/2022/05/getting-started-with-salesforce2sql/) on SpinningCode.org._
-
-You can either download the [latest release](https://github.com/acrosman/Salesforce2Sql/releases/latest) for your operating system or run from code.
+You can either download the [latest release](https://github.com/acrosman/snowForce/releases/latest) for your operating system or run from code.
 
 There should always be a release for Windows (the exe file is an installer), Mac (the dmg file is a standard disk image), and Linux (the zip file contains the executable and supporting materials). You can also download the source archives if you want to explore the version of the code that went into the release.
 
@@ -28,15 +20,9 @@ To run the project from code you will need a working copy of [NodeJS](https://no
 
 ## Salesforce Login
 
-![Login Screen](documentation/InterfaceScreenshots/Login.PNG?raw=true)
-
 Currently only the username and password login system is supported, not OAuth2, so you likely will need your [security token](https://help.salesforce.com/articleView?id=user_security_token.htm&type=5).
 
-In the login fields provide your username, password, and security token. If you are logging into a production or trailhead instance you can use the default login URL. If you are logging into a Sandbox use: https://test.salesforce.com.
-
-## Databases
-
-Currently Salesforce2Sql supports MySQL, MariaDB, and Postgres. Other databases supported by [KNEX.JS](https://knexjs.org/) can be added upon request.
+In the login fields provide your username, password, and security token. If you are logging into a production or Trailhead playground you can use the default login URL. If you are logging into a Sandbox use: https://test.salesforce.com.
 
 ## Disclaimer
 
