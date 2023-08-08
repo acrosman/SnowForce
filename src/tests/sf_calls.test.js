@@ -41,11 +41,11 @@ test('Validate existence of assumed internals', () => {
 test('Check setWindow', () => {
   // The set window does no validation, so we cna set it to any object here.
   const myTestWindow = {
-    testwindow: 1,
+    testWindow: 1,
   };
   expect(sfcalls.__get__('mainWindow')).toBe(null);
   sfcalls.setWindow(myTestWindow);
-  expect(sfcalls.__get__('mainWindow')).toHaveProperty('testwindow', 1);
+  expect(sfcalls.__get__('mainWindow')).toHaveProperty('testWindow', 1);
 });
 
 // A sample set of Preferences for use in this test and when testing other functions that need them.
