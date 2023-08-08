@@ -601,7 +601,7 @@ const displayDraftSchema = (orgId, schema) => {
   }
   updateMessage(`Proposed schema from ${orgUser} ready for review.`);
 
-  $('#btn-generate-schema').prop('disabled', false);
+  $('#btn-generate-recipe').prop('disabled', false);
   $('#btn-save-sf-schema').prop('disabled', false);
   $('#nav-schema-tab').tab('show');
   hideLoader();
@@ -633,9 +633,6 @@ const handleDatabaseFinish = (data) => {
   } else {
     updateMessage('Database creation process complete, some tables had error. Review logs for more details');
   }
-
-  // @todo remove jquery.
-  $('#btn-save-sql-schema').prop('disabled', false);
 
   hideLoader();
 };
@@ -725,26 +722,6 @@ document.getElementById('schema-trigger').addEventListener('click', () => {
       fileName: document.getElementById('db-sqlite3-path').value,
     });
   }
-});
-
-// Save the database create statement to a file.
-document.getElementById('btn-save-sql-schema').addEventListener('click', () => {
-  const dbTypes = document.getElementsByName('db-radio-selectors');
-  let dbType;
-  for (let i = 0; i < dbTypes.length; i += 1) {
-    if (dbTypes[i].checked) {
-      dbType = dbTypes[i].value;
-      break;
-    }
-  }
-  window.api.send('save_ddl_sql', {
-    type: dbType,
-    host: document.getElementById('db-host').value,
-    username: document.getElementById('db-username').value,
-    password: document.getElementById('db-password').value,
-    dbname: document.getElementById('db-name').value,
-    overwrite: document.getElementById('db-overwrite').checked,
-  });
 });
 
 // Add Trigger schema save process.
