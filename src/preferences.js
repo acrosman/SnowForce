@@ -23,25 +23,13 @@ const getCurrentPreferences = () => {
 
   const preferences = {
     theme: 'Cyborg',
-    indexes: {
-      externalIds: true,
-      lookups: true,
-      picklists: true,
-    },
     picklists: {
-      type: 'enum',
       unrestricted: true,
-      ensureBlanks: true,
-    },
-    lookups: {
-      type: 'char(18)',
+      allowBlanks: true,
     },
     defaults: {
-      attemptSFValues: false,
-      textEmptyString: false,
-      checkboxDefaultFalse: true,
-      suppressReadOnly: false,
-      suppressAudit: false,
+      suppressReadOnly: true,
+      suppressAudit: true,
     },
   };
 

@@ -6,23 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-preferences-save').addEventListener('click', () => {
     window.api.send('preferences_save', {
       theme: document.getElementById('setting-theme-select').value,
-      indexes: {
-        externalIds: document.getElementById('index-externalIds').checked,
-        lookups: document.getElementById('index-lookups').checked,
-        picklists: document.getElementById('index-picklists').checked,
-      },
       picklists: {
-        type: document.querySelector('input[name="picklist-fieldType"]:checked').value,
         unrestricted: document.getElementById('picklist-restricted').checked,
-        ensureBlanks: document.getElementById('picklist-blank').checked,
-      },
-      lookups: {
-        type: document.querySelector('input[name="lookup-fieldType"]:checked').value,
+        allowBlanks: document.getElementById('picklist-blank').checked,
       },
       defaults: {
-        attemptSFValues: document.getElementById('default-value').checked,
-        textEmptyString: document.getElementById('default-blank').checked,
-        checkboxDefaultFalse: document.getElementById('default-checkbox').checked,
         suppressReadOnly: document.getElementById('hide-readonly-fields').checked,
         suppressAudit: document.getElementById('hide-audit-fields').checked,
       },
@@ -55,16 +43,8 @@ window.api.receive('preferences_data', (data) => {
 
   // Set Values:
   document.getElementById('setting-theme-select').value = data.theme;
-  document.getElementById('index-picklists').checked = data.indexes.picklists;
-  document.getElementById('index-lookups').checked = data.indexes.lookups;
-  document.getElementById('index-externalIds').checked = data.indexes.externalIds;
-  document.querySelector(`input[name="picklist-fieldType"][value="${data.picklists.type}"]`).checked = true;
   document.getElementById('picklist-restricted').checked = data.picklists.unrestricted;
-  document.getElementById('picklist-blank').checked = data.picklists.ensureBlanks;
-  document.querySelector(`input[name="lookup-fieldType"][value="${data.lookups.type}"]`).checked = true;
-  document.getElementById('default-value').checked = data.defaults.attemptSFValues;
-  document.getElementById('default-blank').checked = data.defaults.textEmptyString;
-  document.getElementById('default-checkbox').checked = data.defaults.checkboxDefaultFalse;
+  document.getElementById('picklist-blank').checked = data.picklists.allowBlanks;
   document.getElementById('hide-readonly-fields').checked = data.defaults.suppressReadOnly;
   document.getElementById('hide-audit-fields').checked = data.defaults.suppressAudit;
 });

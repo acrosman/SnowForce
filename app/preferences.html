@@ -24,154 +24,83 @@
               <h2 class="card-title h5">Picklist Settings</h2>
               <p class="card-text">The following settings change default behavior of all picklists.</p>
               <div class="form-check">
-                <input class="form-check-input" type="radio" name="picklist-fieldType" id="picklist-enum" value="enum">
-                <label class="form-check-label" for="picklist-enum">
-                  Make Picklists Enum
-                </label>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="picklist-restricted">
+                  <label class="form-check-label" for="picklist-restricted">
+                    Respect Unrestricted Picklists.
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="picklist-blank">
+                  <label class="form-check-label" for="picklist-blank">
+                    Allow Blank Values for Picklists
+                  </label>
+                </div>
               </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="picklist-fieldType" id="picklist-string"
-                  value="varchar(255)">
-                <label class="form-check-label" for="picklist-string">
-                  Make Picklists varchar(255)
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="picklist-restricted">
-                <label class="form-check-label" for="picklist-restricted">
-                  Make unrestricted Picklists varchar.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="picklist-blank">
-                <label class="form-check-label" for="picklist-blank">
-                  Ensure a blank option for all picklist enums
-                </label>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="card">
+              <div class="card-body">
+                <h2 class="card-title h5">Other Defaults</h2>
+                <p class="card-text">Other various defaults</p>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="hide-readonly-fields">
+                  <label class="form-check-label" for="hide-readonly-fields">
+                    Skip Read Only Fields.
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" id="hide-audit-fields">
+                  <label class="form-check-label" for="hide-audit-fields">
+                    Skip SF Audit Fields.
+                  </label>
+                </div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-6">
-          <div class="card">
-            <div class="card-body">
-              <h2 class="card-title h5">Other Defaults</h2>
-              <p class="card-text">Other various defaults</p>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="lookup-fieldType" id="lookup-char" value="char(18)">
-                <label class="form-check-label" for="lookup-char">
-                  Make Lookups Char(18)
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="radio" name="lookup-fieldType" id="lookup-string"
-                  value="varchar(255)">
-                <label class="form-check-label" for="lookup-string">
-                  Make Lookups Varchar(255)
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="default-value">
-                <label class="form-check-label" for="default-value">
-                  Attempt to set default to SF Default.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="default-blank">
-                <label class="form-check-label" for="default-blank">
-                  Default text fields to empty string instead of null.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="default-checkbox">
-                <label class="form-check-label" for="default-checkbox">
-                  Default checkbox fields to false instead of null.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="hide-readonly-fields">
-                <label class="form-check-label" for="hide-readonly-fields">
-                  Skip Read Only Fields.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="hide-audit-fields">
-                <label class="form-check-label" for="hide-audit-fields">
-                  Skip SF Audit Fields.
-                </label>
-              </div>
+        <div class="row">
+          <div class="col-12">
+            <div class="form-group">
+              <label for="setting-theme-select">Select Theme</label>
+              <select class="form-control" id="setting-theme-select">
+                <option>Cerulean</option>
+                <option>Cosmo</option>
+                <option>Cyborg</option>
+                <option>Darkly</option>
+                <option>Flatly</option>
+                <option>Journal</option>
+                <option>Litera</option>
+                <option>Lumen</option>
+                <option>Lux</option>
+                <option>Materia</option>
+                <option>Minty</option>
+                <option>Pulse</option>
+                <option>Sandstone</option>
+                <option>Simplex</option>
+                <option>Sketchy</option>
+                <option>Slate</option>
+                <option>Solar</option>
+                <option>Spacelab</option>
+                <option>Superhero</option>
+                <option>United</option>
+                <option>Yeti</option>
+              </select>
+              <small id="settting-help-text-theme-select" class="form-text text-muted">
+                Themes are from Bootswatch and have not all be tested.
+              </small>
+            </div>
+            <div class="form-group">
+              <button type="submit" class="btn btn-primary" id="btn-preferences-save">
+                Save
+              </button>
+              <button type="submit" class="btn btn-secondary" id="btn-preferences-close">
+                Close
+              </button>
             </div>
           </div>
         </div>
-      </div>
-      <div class="row pb-2">
-        <div class="col-12">
-          <div class="card">
-            <div class="card-body">
-              <h2 class="card-title h5">Index Settings</h2>
-              <p class="card-text">Set default indexes in your database.</p>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="index-picklists">
-                <label class="form-check-label" for="index-picklists">
-                  Index all Picklists.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="index-lookups">
-                <label class="form-check-label" for="index-lookups">
-                  Index all Lookups.
-                </label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input" type="checkbox" value="" id="index-externalIds">
-                <label class="form-check-label" for="index-externalIds">
-                  Index all External Ids.
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-12">
-          <div class="form-group">
-            <label for="setting-theme-select">Select Theme</label>
-            <select class="form-control" id="setting-theme-select">
-              <option>Cerulean</option>
-              <option>Cosmo</option>
-              <option>Cyborg</option>
-              <option>Darkly</option>
-              <option>Flatly</option>
-              <option>Journal</option>
-              <option>Litera</option>
-              <option>Lumen</option>
-              <option>Lux</option>
-              <option>Materia</option>
-              <option>Minty</option>
-              <option>Pulse</option>
-              <option>Sandstone</option>
-              <option>Simplex</option>
-              <option>Sketchy</option>
-              <option>Slate</option>
-              <option>Solar</option>
-              <option>Spacelab</option>
-              <option>Superhero</option>
-              <option>United</option>
-              <option>Yeti</option>
-            </select>
-            <small id="settting-help-text-theme-select" class="form-text text-muted">
-              Themes are from Bootswatch and have not all be tested.
-            </small>
-          </div>
-          <div class="form-group">
-            <button type="submit" class="btn btn-primary" id="btn-preferences-save">
-              Save
-            </button>
-            <button type="submit" class="btn btn-secondary" id="btn-preferences-close">
-              Close
-            </button>
-          </div>
-        </div>
-      </div>
     </form>
   </div>
   <script src="../node_modules/jquery/dist/jquery.min.js"></script>
