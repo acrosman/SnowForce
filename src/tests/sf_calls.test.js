@@ -13,10 +13,8 @@ test('Validate exports', () => {
 
   // Validate the handlers list is correct.
   const handlerList = [
-    'knex_schema',
     'load_schema',
     'log_message',
-    'save_ddl_sql',
     'save_schema',
     'sf_describeGlobal',
     'sf_getObjectFields',
@@ -139,7 +137,7 @@ test('Test Picklist Value Extraction', () => {
   const testResult = extractPicklistValues(sampleValues);
   expect(testResult).toHaveLength(3);
   expect(testResult[0]).toBe('Prospect');
-  expect(testResult[1]).toBe('Test\\\'s');
+  expect(testResult[1]).toBe('Test\'s');
   expect(testResult[2]).toBe('Duplicate');
 });
 
