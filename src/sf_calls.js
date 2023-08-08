@@ -252,7 +252,7 @@ const buildFields = (fieldList, allText = false) => {
 const loadSchemaFromFile = () => {
   const dialogOptions = {
     title: 'Load Schema',
-    message: 'Load schema from JSON previously saved by Salesforce2Sql',
+    message: 'Load schema from JSON previously saved by snowForce',
     filters: [
       { name: JSON, extensions: ['json'] },
     ],

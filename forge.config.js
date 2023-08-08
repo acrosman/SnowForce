@@ -4,15 +4,15 @@ const { utils: { fromBuildIdentifier } } = require('@electron-forge/core');
 module.exports = {
   buildIdentifier: process.env.IS_BETA ? 'beta' : 'prod',
   packagerConfig: {
-    appBundleId: fromBuildIdentifier({ beta: 'com.beta.acrosman.Salesforce2Sql', prod: 'com.Salesforce2Sql' }),
+    appBundleId: fromBuildIdentifier({ beta: 'com.beta.acrosman.snowForce', prod: 'com.snowForce' }),
   },
   rebuildConfig: {},
   makers: [
     {
       name: '@electron-forge/maker-squirrel',
       config: {
-        exe: 'salesforce2Sql.exe',
-        name: 'salesforce2Sql',
+        exe: 'snowForce.exe',
+        name: 'snowForce',
         authors: 'Aaron Crosman',
       },
     },
@@ -39,7 +39,7 @@ module.exports = {
       config: {
         repository: {
           owner: 'acrosman',
-          name: 'Salesforce2Sql',
+          name: 'snowForce',
         },
         prerelease: false,
         draft: true,
