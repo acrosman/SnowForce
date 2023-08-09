@@ -31,13 +31,11 @@ contextBridge.exposeInMainWorld(
       const validReceiveChannels = [
         'current_preferences',
         'log_message',
-        'response_db_generated',
         'response_login',
         'response_logout',
         'response_error',
         'response_list_objects',
         'response_schema',
-        'response_sqlite3_file',
         'start_find',
         'update_loader',
       ];

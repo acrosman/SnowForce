@@ -766,22 +766,11 @@ window.api.receive('response_error', (data) => {
   logMessage(data.message, 'Error', data.response, data);
 });
 
-// Response after building database
-window.api.receive('response_db_generated', (data) => {
-  handleDatabaseFinish(data);
-});
-
 // Response after saving Schema
 window.api.receive('response_schema', (data) => {
   document.getElementById('results-object-viewer-wrapper').style.display = 'block';
   logMessage('Schema', 'Success', 'Draft schema built', data);
   displayDraftSchema(data.request?.org, data.response.schema);
-});
-
-// Response after selecting Sqlite3 file
-window.api.receive('response_sqlite3_file', (data) => {
-  logMessage('Schema', 'Success', 'Selected file location', data);
-  updateSqlite3Path(data.response.filePath);
 });
 
 // List Objects From Global Describe.
