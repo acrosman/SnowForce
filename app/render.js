@@ -545,23 +545,23 @@ const displayObjectList = (orgId, sObjectData, selected, sorted = false, sortedC
 
   // Render all objects not already on the list. If the list is sorted this will be
   // all objects. If the list is unsorted the selected objects were already rendered.
-  sObjectData.forEach((sobj) => {
-    if (!displayed.includes(sobj.name) && sobj.createable) {
+  sObjectData.forEach((sObj) => {
+    if (!displayed.includes(sObj.name) && sObj.createable) {
       dataRow = document.createElement('tr');
 
       // Generate a checkbox
       checkCell = document.createElement('input');
       checkCell.type = 'checkbox';
-      checkCell.dataset.objectName = sobj.name;
-      checkCell.checked = selected.includes(sobj.name);
+      checkCell.dataset.objectName = sObj.name;
+      checkCell.checked = selected.includes(sObj.name);
       selectCell = generateTableCell(dataRow, checkCell, false);
       // Add the details
       for (let j = 0; j < displayColumns.length; j += 1) {
-        generateTableCell(dataRow, sobj[displayColumns[j]]);
+        generateTableCell(dataRow, sObj[displayColumns[j]]);
       }
 
       // Add the data for this row to the select cell for easy access during sorting.
-      selectCell.dataset.rowData = JSON.stringify(sobj);
+      selectCell.dataset.rowData = JSON.stringify(sObj);
 
       // Add to the end of the table.
       tBody.appendChild(dataRow);
