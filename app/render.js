@@ -515,26 +515,26 @@ const displayObjectList = (orgId, sObjectData, selected, sorted = false, sortedC
 
   // If not sorted yet, run a pass to rendered selected objects first
   if (!sorted) {
-    sObjectData.forEach((sobj) => {
-      const { name } = sobj;
+    sObjectData.forEach((sObj) => {
+      const { name } = sObj;
       if (selected.includes(name)) {
-        displayed.push(sobj.name);
+        displayed.push(sObj.name);
         dataRow = document.createElement('tr');
 
         // Generate a checkbox
         checkCell = document.createElement('input');
         checkCell.type = 'checkbox';
         checkCell.checked = true;
-        checkCell.dataset.objectName = sobj.name;
+        checkCell.dataset.objectName = sObj.name;
         selectCell = generateTableCell(dataRow, checkCell, false);
 
         // Add the details
         for (let j = 0; j < displayColumns.length; j += 1) {
-          generateTableCell(dataRow, sobj[displayColumns[j]]);
+          generateTableCell(dataRow, sObj[displayColumns[j]]);
         }
 
         // Add the data for this row to the select cell for easy access during sorting.
-        selectCell.dataset.rowData = JSON.stringify(sobj);
+        selectCell.dataset.rowData = JSON.stringify(sObj);
 
         // Add the new row to the table body.
         tBody.appendChild(dataRow);
