@@ -12,12 +12,9 @@ contextBridge.exposeInMainWorld(
       const validSendChannels = [
         'find_text',
         'get_preferences',
-        'knex_schema',
         'load_schema',
         'log_message',
-        'save_ddl_sql',
         'save_schema',
-        'select_sqlite3_location',
         'sf_describeGlobal',
         'sf_getObjectFields',
         'sf_login',

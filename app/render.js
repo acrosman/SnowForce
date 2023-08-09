@@ -695,35 +695,6 @@ document.getElementById('btn-fetch-details').addEventListener('click', () => {
   });
 });
 
-// Build database (including database connection)
-document.getElementById('schema-trigger').addEventListener('click', () => {
-  const dbTypes = document.getElementsByName('db-radio-selectors');
-  let dbType;
-  for (let i = 0; i < dbTypes.length; i += 1) {
-    if (dbTypes[i].checked) {
-      dbType = dbTypes[i].value;
-      break;
-    }
-  }
-
-  if (document.getElementById('db-name').value === '' && dbType !== 'sqlite3') {
-    updateMessage('Database name is required to attempt creation.');
-  } else {
-    showLoader('Creating Database Tables');
-
-    window.api.send('knex_schema', {
-      type: dbType,
-      host: document.getElementById('db-host').value,
-      port: document.getElementById('db-port').value,
-      username: document.getElementById('db-username').value,
-      password: document.getElementById('db-password').value,
-      dbname: document.getElementById('db-name').value,
-      overwrite: document.getElementById('db-overwrite').checked,
-      fileName: document.getElementById('db-sqlite3-path').value,
-    });
-  }
-});
-
 // Add Trigger schema save process.
 document.getElementById('btn-save-sf-schema').addEventListener('click', () => {
   window.api.send('save_schema');
@@ -732,11 +703,6 @@ document.getElementById('btn-save-sf-schema').addEventListener('click', () => {
 // Add trigger for load schema process.
 document.getElementById('btn-load-sf-schema').addEventListener('click', () => {
   window.api.send('load_schema');
-});
-
-// Add trigger for setting sqlite3 file path.
-document.getElementById('btn-sqlite3-file').addEventListener('click', () => {
-  window.api.send('select_sqlite3_location');
 });
 
 // ===== Response handlers from IPC Messages to render context ======
