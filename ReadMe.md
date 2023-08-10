@@ -12,7 +12,7 @@ You can either download the [latest release](https://github.com/acrosman/snowFor
 
 There should always be a release for Windows (the exe file is an installer), Mac (the dmg file is a standard disk image), and Linux (the zip file contains the executable and supporting materials). You can also download the source archives if you want to explore the version of the code that went into the release.
 
-To run the project from code you will need a working copy of [NodeJS](https://nodejs.org) 14 or later. To make it useful you will also need a Salesforce org you want to mirro, and a MySQL, Mariadb, or Postgres database you can create tables in.
+To run the project from code you will need a working copy of [NodeJS](https://nodejs.org) 18 or later.
 
 1. Clone this repo (or create your own fork) to your local machine.
 1. Run: `npm install` from the project root directory, and wait for all the packages to load (this takes a few minutes).

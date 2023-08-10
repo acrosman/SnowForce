@@ -80,6 +80,3 @@ typings/
 .idea/
 .vscode/
 .atom/
-
-# SQLite files
-*.sqlite

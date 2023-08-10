@@ -120,9 +120,9 @@ const setPreferences = (prefs) => {
 };
 
 /**
- * Determines to SQL data type to use for a given SF field type.
+ * Determines data type to use for a given SF field type.
  * @param {*} sfTypeName The SF field type.
- * @returns Returns the name of the sql column type to use.
+ * @returns Returns the name of the column type to use.
  */
 const resolveFieldType = (sfTypeName) => {
   const typeResolver = typeResolverBases;
@@ -363,8 +363,6 @@ const buildTable = (table) => {
         break;
       case 'reference':
         column = table.string(field.name, 18);
-        // Only impacts MySQL makes the collation case sensitive.
-        column.collate('utf8mb4_bin');
         break;
       case 'text':
         column = table.text(field.name);
