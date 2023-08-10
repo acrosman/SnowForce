@@ -124,8 +124,8 @@ test('Test updateMessage', () => {
   expect(messageElement.innerText).toEqual(message);
 });
 
-// test('Test refreshObjectDisplay', () => {
-//   const refreshObjectDisplay = render.__get__('refreshObjectDisplay');
-//   refreshObjectDisplay();
-//   expect('Test Stub').toEqual('Test Stub');
-// });
+test('Test insertObjectSchema', () => {
+  expect("content" in document.createElement("template")).toBeTruthy();
+  const insertObjectSchema = render.__get__('insertObjectSchema');
+  insertObjectSchema('Sample', {});
+});

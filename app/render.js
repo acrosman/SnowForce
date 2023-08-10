@@ -342,7 +342,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   const details = clone.querySelector('.object-details');
   header.id = `object-detail-header-${objectName}`;
   details.id = `object-details-${objectName}`;
-  btn.data.target = `#${details.id}`;
+  btn.dataset.target = `#${details.id}`;
   btn.textContent = objectName;
 
   // Clone and prep the fields and field elements.

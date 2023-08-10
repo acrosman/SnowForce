@@ -206,7 +206,18 @@
               <h3></h3>
               <p></p>
             </div>
-            <div id="results-object-viewer"></div>
+            <div id="results-object-viewer">
+              <template id="object-detail-template">
+                <div class="card-header">
+                  <button class="btn btn-link header-trigger" data-toggle="collapse" data-target="">
+                  </button>
+                </div>
+                <div class="collapse show object-details" aria-labelledby="headingOne" data-parent="#objectAccordion">
+                  <div class="card-body">
+                  </div>
+                </div>
+              </template>
+            </div>
           </div>
         </div>
         <div class="tab-pane fade" id="nav-recipe" role="tabpanel" aria-labelledby="nav-recipe-tab">
