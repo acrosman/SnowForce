@@ -32,7 +32,7 @@ contextBridge.exposeInMainWorld(
         'response_logout',
         'response_error',
         'response_list_objects',
-        'response_schema',
+        'response_object_schema',
         'start_find',
         'update_loader',
       ];

@@ -595,28 +595,26 @@ const handlers = {
 
     // Log status
     logMessage('Schema', 'Info', `Fetching schema for ${args.objects.length} objects`);
-    updateLoader(`Loaded ${completedObjects} of ${args.objects.length} Object Describes`);
+    updateLoader('Starting Object Describe Fetch');
 
     args.objects.forEach((obj) => {
       if (obj !== undefined) {
         conn.sobject(obj).describe().then((response) => {
           completedObjects += 1;
           proposedSchema[response.name] = buildFields(response.fields);
-          updateLoader(`Loaded ${completedObjects} of ${args.objects.length} Object Describes`);
           allObjects[response.name] = response;
-          if (completedObjects === args.objects.length) {
-            // Send Schema to interface for review.
-            mainWindow.webContents.send('response_schema', {
-              status: false,
-              message: 'Processed Objects',
-              response: {
-                objects: allObjects,
-                schema: proposedSchema,
-              },
-              limitInfo: conn.limitInfo,
-              request: args,
-            });
-          }
+          // Send Object's Schema to interface for review.
+          mainWindow.webContents.send('response_object_schema', {
+            status: completedObjects === args.objects.length,
+            message: `Processed ${response.name}`,
+            response: {
+              objectName: response.name,
+              objectSchema: proposedSchema[response.name],
+            },
+            limitInfo: conn.limitInfo,
+            request: args,
+          });
+          updateLoader(`Loaded ${completedObjects} of ${args.objects.length} Object Describes`);
         }, (err) => {
           logMessage('Field Fetch', 'Error', `Error loading describe for ${obj}: ${err} `);
         });

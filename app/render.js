@@ -325,60 +325,31 @@ const updateMessage = (message) => {
 };
 
 /**
- * Displays an object in the results-object-viewer section of the interface using JSONViewer.
- *
- * @param {Object} data The object to display, object must contain message and response attributes.
+ * Insert an object's schema into the accordion of objects.
+ * @param {String} objectName
+ * @param {*} fieldSchema
  */
-const refreshObjectDisplay = (data) => {
-  showLoader('Refreshing database schema display');
-  $('#results-object-viewer-wrapper .results-summary h3').text(data.message);
+const insertObjectSchema = (objectName, fieldSchema) => {
+  // Grab DOM targets
+  const wrapper = document.getElementById('results-object-viewer');
+  const objTemplate = document.getElementById('object-detail-template');
+  const fldTemplate = document.getElementById('field-detail-template');
 
-  // When this is displaying a describe add a little helpful summary.
-  if (Object.prototype.hasOwnProperty.call(data, 'response.fields')) {
-    $('#results-object-viewer-wrapper .results-summary p').text(
-      `Found ${data.response.fields.length} fields and ${data.response.recordTypeInfos.length} record types.`,
-    );
-  } else {
-    $('#results-object-viewer-wrapper .results-summary p').text('');
-  }
+  // Clone and prep the Object card.
+  const clone = objTemplate.content.cloneNode(true);
+  const header = clone.querySelector('.card-header');
+  const btn = header.querySelector('button.header-trigger');
+  const details = clone.querySelector('.object-details');
+  header.id = `object-detail-header-${objectName}`;
+  details.id = `object-details-${objectName}`;
+  btn.data.target = `#${details.id}`;
+  btn.textContent = objectName;
 
-  $('#results-object-viewer').jsonViewer(data.response, {
-    collapsed: true,
-    rootCollapsable: false,
-    withQuotes: true,
-    withLinks: true,
-  });
-  hideLoader();
+  // Clone and prep the fields and field elements.
+
+  // Insert new structures.
+  wrapper.appendChild(clone);
 };
-
-// =============== Interface Setup ===================
-// This section should steadily replace the Jquery at the top of the page.
-
-Array.from(document.getElementsByClassName('sqlite3-wrapper')).forEach((btn) => {
-  btn.style.display = 'none';
-});
-/**
- * Setup the handlers for the server select radios.
- */
-document.getElementsByName('db-radio-selectors').forEach((el) => {
-  el.addEventListener('change', (event) => {
-    if (event.target.id === 'db-sqlite') {
-      Array.from(document.getElementsByClassName('db-info-wrapper')).forEach((btn) => {
-        btn.style.display = 'none';
-      });
-      Array.from(document.getElementsByClassName('sqlite3-wrapper')).forEach((btn) => {
-        btn.style.display = 'block';
-      });
-    } else {
-      Array.from(document.getElementsByClassName('db-info-wrapper')).forEach((btn) => {
-        btn.style.display = 'block';
-      });
-      Array.from(document.getElementsByClassName('sqlite3-wrapper')).forEach((btn) => {
-        btn.style.display = 'none';
-      });
-    }
-  });
-});
 
 // ================ Response Handlers =================
 
@@ -582,67 +553,34 @@ const displayObjectList = (orgId, sObjectData, selected, sorted = false, sortedC
 };
 
 /**
- * Displays the drafted schema in the JSONViewer
- * @param {String} orgId The org ID for the schema.
+ * Displays the field schema for an object for user edits.
+ * @param {String} objectName The name of the object returned.
  * @param {*} schema the built-out schema from main thread.
+ * @param {boolean} complete is true when this is the last object, and the schema is complete.
+ * @param {String} orgId The org ID for the schema.
  */
-const displayDraftSchema = (orgId, schema) => {
-  showLoader('All objects loaded, refreshing display');
+const displayObjectSchema = (objectName, schema, complete, orgId) => {
+  showLoader(`Rendering ${objectName}`);
 
-  refreshObjectDisplay({
-    message: 'Proposed Database Schema',
-    response: schema,
-  });
+  insertObjectSchema(objectName, schema);
 
   // If we know the org user, show it, otherwise assume this was loaded locally.
   let orgUser = fetchOrgUser(orgId);
   if (orgUser === '') {
     orgUser = 'local file';
   }
-  updateMessage(`Proposed schema from ${orgUser} ready for review.`);
 
+  if (complete) {
+    updateMessage(`Proposed schema of all objects from ${orgUser} ready for review.`);
+  } else {
+    updateMessage(`Proposed schema of ${objectName} from ${orgUser} ready for review.`);
+  }
+
+  // TODO: Convert to native JS
   $('#btn-generate-recipe').prop('disabled', false);
   $('#btn-save-sf-schema').prop('disabled', false);
   $('#nav-schema-tab').tab('show');
   hideLoader();
-};
-
-/**
- * Handles follow up when database creation process completes.
- * @param {*} data The result details.
- */
-const handleDatabaseFinish = (data) => {
-  // Check each table to see if it succeeded
-  const hasResponses = Object.prototype.hasOwnProperty.call(data, 'response');
-  let fullSuccess = true;
-  let hasFailure = false;
-  let fullFailure = !hasResponses;
-  const tables = Object.getOwnPropertyNames(data.responses);
-  tables.forEach((table) => {
-    fullSuccess = data.responses[table] && fullSuccess;
-    hasFailure = !data.responses[table] || hasFailure;
-    fullFailure = !data.responses[table] && fullFailure;
-  });
-
-  logMessage('Database', 'Info', 'Database generation complete.', data);
-
-  if (fullSuccess) {
-    updateMessage('Database creation complete, all tables created');
-  } else if (fullFailure) {
-    updateMessage('Error creating database tables, all tables failed');
-  } else {
-    updateMessage('Database creation process complete, some tables had error. Review logs for more details');
-  }
-
-  hideLoader();
-};
-
-/**
- * Handles response from sqlite3 file path.
- * @param {string} filePath The path selected.
- */
-const updateSqlite3Path = (filePath) => {
-  document.getElementById('db-sqlite3-path').value = filePath;
 };
 
 // ========= Messages to the main process ===============
@@ -732,11 +670,16 @@ window.api.receive('response_error', (data) => {
   logMessage(data.message, 'Error', data.response, data);
 });
 
-// Response after saving Schema
-window.api.receive('response_schema', (data) => {
+// Response after fetching sObject Schemas
+window.api.receive('response_object_schema', (data) => {
   document.getElementById('results-object-viewer-wrapper').style.display = 'block';
   logMessage('Schema', 'Success', 'Draft schema built', data);
-  displayDraftSchema(data.request?.org, data.response.schema);
+  displayObjectSchema(
+    data.response.objectName,
+    data.response.objectSchema,
+    data.status,
+    data.request?.org,
+  );
 });
 
 // List Objects From Global Describe.
