@@ -208,12 +208,14 @@
             </div>
             <div id="results-object-viewer">
               <template id="object-detail-template">
-                <div class="card-header">
-                  <button class="btn btn-link header-trigger" data-toggle="collapse" data-target="">
-                  </button>
-                </div>
-                <div class="collapse show object-details" aria-labelledby="headingOne" data-parent="#objectAccordion">
-                  <div class="card-body">
+                <div class="card" data-name="">
+                  <div class="card-header">
+                    <button class="btn btn-link header-trigger" data-toggle="collapse" data-target="">
+                    </button>
+                  </div>
+                  <div class="collapse show object-details" aria-labelledby="headingOne" data-parent="#objectAccordion">
+                    <div class="card-body">
+                    </div>
                   </div>
                 </div>
               </template>
@@ -240,6 +242,8 @@
                   </div>
                 </li>
               </template>
+              <div class="object-details" id="objectAccordion">
+              </div>
             </div>
           </div>
         </div>

@@ -325,22 +325,50 @@ const updateMessage = (message) => {
 };
 
 /**
+ * Inserts a node into another node, sorted by sortValue using the provided
+ * pattern to select the sort value. Sort values are assumed to be in a data-name
+ * attribute of insertedDom (and all other inserted elements). This uses an insert
+ * sort approach, and assumes the existing list is empty or sorted.
+ * @param {*} wrapperDom The DOM element which will contain the other.
+ * @param {*} insertDom The DOM element to insert into the wrapper.
+ * @param {*} sortValue The value to use for sorting.
+ * @param {*} selectorPattern The selector to use for finding the value in previous elements.
+ */
+const insertSorted = (wrapperDom, insertDom, sortValue, selectorPattern) => {
+  const elementList = wrapperDom.querySelectorAll(selectorPattern);
+
+  if (elementList.length === 0) {
+    wrapperDom.appendChild(insertDom);
+    return;
+  }
+
+  for (let i = 0; i < elementList.length; i += 1) {
+    if (elementList[i].dataset.name.localeCompare(sortValue) > -1) {
+      wrapperDom.insertBefore(insertDom, elementList[i]);
+      return;
+    }
+  }
+};
+
+/**
  * Insert an object's schema into the accordion of objects.
  * @param {String} objectName
  * @param {*} fieldSchema
  */
 const insertObjectSchema = (objectName, fieldSchema) => {
   // Grab DOM targets
-  const wrapper = document.getElementById('results-object-viewer');
+  const wrapper = document.getElementById('objectAccordion');
   const objTemplate = document.getElementById('object-detail-template');
   const fldTemplate = document.getElementById('field-detail-template');
 
   // Clone and prep the Object card.
-  const clone = objTemplate.content.cloneNode(true);
-  const header = clone.querySelector('.card-header');
+  const objectDetails = objTemplate.content.cloneNode(true);
+  const objectCard = objectDetails.querySelector('div.card');
+  const header = objectDetails.querySelector('.card-header');
   const btn = header.querySelector('button.header-trigger');
-  const details = clone.querySelector('.object-details');
+  const details = objectDetails.querySelector('.object-details');
   header.id = `object-detail-header-${objectName}`;
+  objectCard.dataset.name = objectName;
   details.id = `object-details-${objectName}`;
   btn.dataset.target = `#${details.id}`;
   btn.textContent = objectName;
@@ -348,7 +376,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   // Clone and prep the fields and field elements.
 
   // Insert new structures.
-  wrapper.appendChild(clone);
+  insertSorted(wrapper, objectDetails, objectName, 'div.card');
 };
 
 // ================ Response Handlers =================
