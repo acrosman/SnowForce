@@ -561,6 +561,7 @@ const displayObjectList = (orgId, sObjectData, selected, sorted = false, sortedC
  */
 const displayObjectSchema = (objectName, schema, complete, orgId) => {
   showLoader(`Rendering ${objectName}`);
+  document.getElementById('results-object-viewer-wrapper').style.display = 'block';
 
   insertObjectSchema(objectName, schema);
 
@@ -672,7 +673,6 @@ window.api.receive('response_error', (data) => {
 
 // Response after fetching sObject Schemas
 window.api.receive('response_object_schema', (data) => {
-  document.getElementById('results-object-viewer-wrapper').style.display = 'block';
   logMessage('Schema', 'Success', 'Draft schema built', data);
   displayObjectSchema(
     data.response.objectName,
