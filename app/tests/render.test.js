@@ -128,4 +128,10 @@ test('Test insertObjectSchema', () => {
   expect("content" in document.createElement("template")).toBeTruthy();
   const insertObjectSchema = render.__get__('insertObjectSchema');
   insertObjectSchema('Sample', { 'field': 'sample text' });
+  const sampleNode = document.getElementById('object-details-Sample');
+  expect(sampleNode).not.toBeNull();
+  const objectLabel = document.querySelector('#object-details-Sample button');
+  const fieldName = document.getElementById('field-details-field');
+  expect(fieldName).not.toBeNull();
+
 });
