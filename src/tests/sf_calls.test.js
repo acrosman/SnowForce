@@ -1,6 +1,3 @@
-// FS is used to load samples from file.
-const fs = require('fs');
-
 // The actual module we're testing.
 const sfcalls = require('../sf_calls');
 
@@ -35,7 +32,7 @@ test('Validate existence of assumed internals', () => {
   expect(sfcalls.__get__('mainWindow')).toBe(null);
   expect(sfcalls.__get__('preferences')).toBe(null);
   // Make sure the resolver list exists by checking one arbitrarily selected property.
-  expect(sfcalls.__get__('typeResolverBases')).toHaveProperty('reference', 'reference');
+  expect(sfcalls.__get__('typeDefaultResponses')).toHaveProperty('phone', 'fake: phone');
 });
 
 test('Check setWindow', () => {
@@ -78,28 +75,6 @@ test('Check SetPreferences', () => {
   expect(sfcalls.__get__('preferences')).toHaveProperty('theme');
 });
 
-test('Test resolveFieldType', () => {
-  // Get the current list of mapping default values.
-  const defaultTypeMap = sfcalls.__get__('typeResolverBases');
-
-  // Set with the default values above, then we'll try some variations.
-  sfcalls.setPreferences(samplePrefs);
-  const resolveFunction = sfcalls.__get__('resolveFieldType');
-  Object.entries(defaultTypeMap).forEach((element) => {
-    expect(resolveFunction(element[0])).toBe(element[1]);
-  });
-
-  // Tweak for picklists when set to be strings.
-  samplePrefs.picklists.type = 'string';
-  sfcalls.setPreferences(samplePrefs);
-  expect(resolveFunction('picklist')).toBe('string');
-
-  // Set Ids to be full strings instead of char(18) as needed.
-  samplePrefs.lookups.type = 'varchar(255)';
-  sfcalls.setPreferences(samplePrefs);
-  expect(resolveFunction('reference')).toBe('string');
-});
-
 // Test the helper that pulls picklist values.
 test('Test Picklist Value Extraction', () => {
   const sampleValues = [
@@ -133,45 +108,10 @@ test('Test Picklist Value Extraction', () => {
     },
   ];
 
-  const extractPicklistValues = sfcalls.__get__('extractPicklistValues');
-  const testResult = extractPicklistValues(sampleValues);
-  expect(testResult).toHaveLength(3);
-  expect(testResult[0]).toBe('Prospect');
-  expect(testResult[1]).toBe('Test\'s');
-  expect(testResult[2]).toBe('Duplicate');
-});
-
-test('Test schema construction for a field', (done) => {
-  // Get our test function.
-  const buildFields = sfcalls.__get__('buildFields');
-
-  // Load the sample responses.
-  fs.readFile('src/tests/sampleSObjectDescribes.json', (err, data) => {
-    done();
-    if (err) {
-      throw new Error(`Unable to load sample file: ${err}`);
-    }
-
-    const sampleSchema = JSON.parse(data);
-    sfcalls.setPreferences(samplePrefs);
-    let testResult = buildFields(sampleSchema.Account.fields);
-    expect(testResult).toHaveProperty('Id');
-    expect(testResult).toHaveProperty('Id.size', 18);
-    expect(testResult).toHaveProperty('Id.type', 'id');
-    expect(testResult).toHaveProperty('Id.name', 'Id');
-    expect(testResult).toHaveProperty('Name');
-    expect(testResult).toHaveProperty('Name.size', 255);
-    expect(testResult).toHaveProperty('Name.type', 'string');
-    expect(testResult).toHaveProperty('Name.name', 'Name');
-
-    testResult = buildFields(sampleSchema.Contact.fields);
-    expect(testResult).toHaveProperty('Id');
-    expect(testResult).toHaveProperty('Id.size', 18);
-    expect(testResult).toHaveProperty('Id.type', 'id');
-    expect(testResult).toHaveProperty('Id.name', 'Id');
-    expect(testResult).toHaveProperty('Name');
-    expect(testResult).toHaveProperty('Name.size', 255);
-    expect(testResult).toHaveProperty('Name.type', 'string');
-    expect(testResult).toHaveProperty('Name.name', 'Name');
-  });
+  const definePicklistChoice = sfcalls.__get__('definePicklistChoice');
+  const testResult = definePicklistChoice(sampleValues);
+  expect(testResult).toMatch(/random_choice/);
+  expect(testResult).toMatch(/Prospect/);
+  expect(testResult).toMatch(/Test's/);
+  expect(testResult).toMatch(/Duplicate/);
 });

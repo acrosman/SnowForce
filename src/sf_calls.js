@@ -11,33 +11,69 @@ let mainWindow = null;
 let proposedSchema = {};
 let preferences = null;
 
-// Baseline for Type conversions between environments.
-const typeResolverBases = {
-  base64: 'text',
-  boolean: 'boolean',
-  byte: 'binary',
-  calculated: 'string',
-  comboBox: 'string',
-  currency: 'decimal',
-  date: 'date',
-  datetime: 'datetime',
-  double: 'decimal',
-  email: 'string',
-  encryptedstring: 'string',
-  id: 'reference',
-  int: 'integer',
-  long: 'biginteger',
-  masterrecord: 'string',
-  multipicklist: 'string',
-  percent: 'decimal',
-  phone: 'string',
-  picklist: 'enum',
-  reference: 'reference',
-  string: 'string',
-  textarea: 'text',
-  time: 'time',
-  url: 'string',
+// Baseline for field conversions by type and naming conventions.
+// Snowfakery formula syntax overlaps with JS templates. Disable eslint rule
+// since it doesn't make sense in this context.
+/* eslint-disable no-template-curly-in-string */
+// Default proposals by type
+const typeDefaultResponses = {
+  base64: false, // Need a better response
+  boolean: 'random_choice: \n  - ${{ \'On\'}} \n  - ${{ \'Off\'}}',
+  byte: '${{ fake.Binary(length = 4) }}',
+  calculated: false, // There is no valid response for these fields
+  comboBox: false,
+  currency: `random_number:
+  min: 1
+  max: 10000
+`,
+  date: `date_between:
+  start_date: -1y
+  end_date: +1M`,
+  datetime: `datetime_between:
+  start_date: 1970-12-31 11:59:00
+  end_date: now`,
+  double: `random_number:
+  min: 0
+  max: 100`,
+  email: 'fake: email',
+  encryptedstring: '${{fake.Sha1(raw_output=False)}}',
+  id: false,
+  int: `random_number:
+  min: 0
+  max: 100`,
+  long: `random_number:
+  min: 0
+  max: 10000`,
+  masterrecord: false,
+  multipicklist: false,
+  percent: `random_number:
+  min: 1
+  max: 100`,
+  phone: 'fake: phone',
+  picklist: false,
+  reference: false,
+  string: '${{fake.Sentence(nb_words=10)}}',
+  textarea: '${{fake.Paragraph(nb_sentences=5)}}',
+  time: '${{fake.Time}}',
+  url: '${{fake.Uri}}',
 };
+
+// Standard object common fields
+const objectDefaultResponses = {
+  Account: {
+    Name: 'fake: company',
+  },
+  Contact: {
+    FirstName: 'fake: first_name',
+    LastName: 'fake: last_name',
+    Salutation: `random_choice:
+  Mr.: 40%
+  Ms.: 40%
+  Dr.: 10%
+  Prof.: 10%`,
+  },
+};
+/* eslint-enable no-template-curly-in-string */
 
 // Different common packages beg for different sets of Standard objects as likely to be used.
 const standardObjectsByNamespace = {
@@ -120,31 +156,6 @@ const setPreferences = (prefs) => {
 };
 
 /**
- * Determines data type to use for a given SF field type.
- * @param {*} sfTypeName The SF field type.
- * @returns Returns the name of the column type to use.
- */
-const resolveFieldType = (sfTypeName) => {
-  const typeResolver = typeResolverBases;
-
-  // Tweak for picklists when set to be strings.
-  if (preferences.picklists.type !== 'enum') {
-    typeResolver.picklist = 'string';
-  }
-
-  // Set Ids to be full strings instead of char(18) as needed.
-  if (preferences.lookups.type !== 'char(18)') {
-    typeResolver.reference = 'string';
-  }
-
-  if (Object.prototype.hasOwnProperty.call(typeResolver, sfTypeName)) {
-    return typeResolver[sfTypeName];
-  }
-
-  return 'text';
-};
-
-/**
  * Send a log message to the console window.
  * @param {String} title  Message title or sender
  * @param {String} channel  Message category
@@ -169,81 +180,76 @@ const updateLoader = (message) => {
 };
 
 /**
- * Extracts the list of field values from a picklist value set.
+ * Generates a choice statement to use with Picklists
  * @param {Array} valueList list of values from a Salesforce describe response.
- * @returns the actual list of values.
+ * @returns Snowfakery random_choice string for the picklist.
  */
-const extractPicklistValues = (valueList) => {
+const definePicklistChoice = (valueList) => {
   let values = [];
   let val;
+  // Extract all values and de-dup list
   for (let i = 0; i < valueList.length; i += 1) {
     val = valueList[i].value;
     values.push(val);
   }
   values = [...new Set(values)];
-  return values;
+
+  // Generate the Random_choice string.
+  let statement = 'random_choice:\n';
+  for (let i = 0; i < values.length; i += 1) {
+    statement += `  - ${values[i]}\n`;
+  }
+
+  return statement;
 };
 
 /**
  * Generates the details of all the fields in the schema.
+ * @param {String} objectName The name of the object the fields define.
  * @param {*} fieldList An array of fields.
- * @param {*} allText Indicates if all strings should be text instead of varchar.
- * @returns an object with all of a table's fields and their details.
+ * @returns An collection of proposed Snowfakery line for this field.
  */
-const buildFields = (fieldList, allText = false) => {
-  let fld;
-  const objFields = {};
+const buildFields = (objectName, fieldList) => {
+  const proposedFakers = {};
+  let fakerProposal;
   let isReadOnly = false;
   let isAudit = false;
+
+  const objectOverrideList = Object.getOwnPropertyNames(objectDefaultResponses);
+  let fldList;
 
   for (let f = 0; f < fieldList.length; f += 1) {
     // Determine if this is a readonly or audit field.
     isReadOnly = fieldList[f].calculated || (!fieldList[f].updateable && !fieldList[f].createable);
     isAudit = auditFields.includes(fieldList[f].name);
 
-    // Add field to schema if it's an Id, and allowed by preferences.
+    // Add field to schema if it's an Id, or allowed by preferences.
     if (fieldList[f].type === 'id'
       || (
         !(preferences.defaults.suppressReadOnly && isReadOnly)
         && !(preferences.defaults.suppressAudit && isAudit)
       )
     ) {
-      fld = {};
-      // Values we want for all fields.
-      fld.name = fieldList[f].name;
-      fld.label = fieldList[f].label;
-      fld.type = fieldList[f].type;
-      fld.size = fieldList[f].length;
-      fld.defaultValue = fieldList[f].defaultValue;
-      fld.externalId = fieldList[f].externalId;
+      // Get a default faker when possible.
+      fakerProposal = typeDefaultResponses[fieldList[f].type];
 
-      // Large text fields go to TEXT.
-      if (fld.type === 'string' && (fld.size > 255 || allText)) {
-        fld.type = 'text';
+      // For Picklists we need to generate statement.
+      if (fieldList[f].type === 'picklist' || fieldList[f].type === 'multipicklist') {
+        fakerProposal = definePicklistChoice((fieldList[f].picklistValues));
       }
 
-      // Type specific values.
-      switch (fld.type) {
-        case 'reference':
-          fld.target = fieldList[f].referenceTo;
-          break;
-        case 'picklist':
-          fld.values = extractPicklistValues(fieldList[f].picklistValues);
-          fld.isRestricted = fieldList[f].restrictedPicklist;
-          break;
-        case 'currency':
-        case 'double':
-        case 'float':
-          fld.scale = fieldList[f].scale;
-          fld.precision = fieldList[f].precision;
-          break;
-        default:
-          break;
+      // Check for object/field specific overrides.
+      if (objectName in objectOverrideList) {
+        fldList = Object.getOwnPropertyNames(objectDefaultResponses[objectName]);
+        if (fieldList[f].name in fldList) {
+          fakerProposal = objectDefaultResponses[objectName][fieldList[f].name];
+        }
       }
-      objFields[fld.name] = fld;
+
+      proposedFakers[fieldList[f].name] = fakerProposal;
     }
   }
-  return objFields;
+  return proposedFakers;
 };
 
 /**
@@ -285,106 +291,6 @@ const loadSchemaFromFile = () => {
       });
     });
   });
-};
-
-/**
- * A callback to build out tables.
- * @param {object} table the table we're building out.
- */
-const buildTable = (table) => {
-  const fields = proposedSchema[table._tableName];
-  let field;
-  let fieldType;
-  let addIndex;
-  const fieldNames = Object.getOwnPropertyNames(fields);
-
-  for (let i = 0; i < fieldNames.length; i += 1) {
-    field = fields[fieldNames[i]];
-
-    // Resolve SF type to DB type.
-    fieldType = resolveFieldType(field.type);
-
-    // Extract field size.
-    let { size, defaultValue } = field;
-
-    // If this is an unrestricted picklist.
-    if (field.type === 'picklist' && !field.isRestricted && preferences.picklists.unrestricted) {
-      fieldType = 'string';
-      size = 255;
-    }
-
-    // Setup default when suggested.
-    const stringTypes = ['string', 'text'];
-    if (preferences.defaults.textEmptyString && stringTypes.includes(fieldType)) {
-      if (defaultValue === 'null' || defaultValue === null) {
-        defaultValue = '';
-      }
-    }
-
-    // For checkbox fields, set a default of false instead of null when pref set.
-    if (preferences.defaults.checkboxDefault && fieldType === 'boolean') {
-      if (defaultValue === 'null' || defaultValue === null) {
-        defaultValue = false;
-      }
-    }
-
-    let column;
-    switch (fieldType) {
-      case 'binary':
-        column = table.binary(field.name, size);
-        break;
-      case 'boolean':
-        column = table.boolean(field.name);
-        break;
-      case 'biginteger':
-        column = table.biginteger(field.name);
-        break;
-      case 'date':
-        column = table.date(field.name);
-        break;
-      case 'datetime':
-        column = table.datetime(field.name);
-        break;
-      case 'decimal':
-        column = table.decimal(field.name, field.precision, field.scale);
-        break;
-      case 'enum':
-        // Add a blank if needed.
-        if (preferences.picklists.ensureBlanks && !field.values.includes('')) {
-          field.values.push('');
-        }
-        column = table.enu(field.name, field.values);
-        break;
-      case 'float':
-        column = table.float(field.name, field.precision, field.scale);
-        break;
-      case 'integer':
-        column = table.integer(field.name);
-        break;
-      case 'reference':
-        column = table.string(field.name, 18);
-        break;
-      case 'text':
-        column = table.text(field.name);
-        break;
-      case 'time':
-        column = table.time(field.name);
-        break;
-      default:
-        if (!size) {
-          size = 255;
-        }
-        column = table.string(field.name, size);
-    }
-
-    if (preferences.defaults.attemptSFValues) {
-      column.defaultTo(defaultValue);
-    }
-
-    if (addIndex) {
-      // to be deleted.
-    }
-  }
 };
 
 /**
