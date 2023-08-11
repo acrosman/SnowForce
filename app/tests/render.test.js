@@ -18,7 +18,7 @@ beforeAll(() => {
 beforeEach(() => {
   // Load index.html since render.js assumes it's structures.
   const fs = require('fs');  // eslint-disable-line
-  const indexHtml = fs.readFileSync('app/tests/minIndex.html');
+  const indexHtml = fs.readFileSync('app/index.html');
   document.body.innerHTML = indexHtml.toString();
   global.render = require('../render');  // eslint-disable-line
 });
