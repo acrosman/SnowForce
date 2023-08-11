@@ -374,6 +374,22 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   btn.textContent = objectName;
 
   // Clone and prep the fields and field elements.
+  const fieldWrapper = objectDetails.querySelector('ul');
+  const fldNames = Object.getOwnPropertyNames(fieldSchema);
+  for (let i = 0; i < fldNames.length; i += 1) {
+    const fieldDetail = fldTemplate.content.cloneNode(true);
+    const label = fieldDetail.querySelector('label');
+    const textArea = fieldDetail.querySelector('textarea.field-detail-textarea');
+    const textareaId = `field-details-${fldNames[i]}-statement`;
+    label.id = `field-details-${fldNames[i]}`;
+    textArea.id = textareaId;
+    label.parentElement.dataset.name = fldNames[i];
+    label.textContent = fldNames[i];
+    label.setAttribute('for', textareaId);
+    textArea.textContent = fieldSchema[fldNames[i]];
+
+    insertSorted(fieldWrapper, fieldDetail, fldNames[i], 'li');
+  }
 
   // Insert new structures.
   insertSorted(wrapper, objectDetails, objectName, 'div.card');

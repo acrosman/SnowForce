@@ -127,5 +127,5 @@ test('Test updateMessage', () => {
 test('Test insertObjectSchema', () => {
   expect("content" in document.createElement("template")).toBeTruthy();
   const insertObjectSchema = render.__get__('insertObjectSchema');
-  insertObjectSchema('Sample', {});
+  insertObjectSchema('Sample', { 'field': 'sample text' });
 });
