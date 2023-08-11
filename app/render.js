@@ -367,11 +367,19 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   const header = objectDetails.querySelector('.card-header');
   const btn = header.querySelector('button.header-trigger');
   const details = objectDetails.querySelector('.object-details');
+  const objectParentLabel = objectDetails.querySelector('label.object-setting-parent');
+  const objectParentValue = objectDetails.querySelector('input.object-setting-parent');
+  const objectCountLabel = objectDetails.querySelector('label.object-setting-count');
+  const objectCountValue = objectDetails.querySelector('input.object-setting-count');
   header.id = `object-detail-header-${objectName}`;
   objectCard.dataset.name = objectName;
   details.id = `object-details-${objectName}`;
   btn.dataset.target = `#${details.id}`;
   btn.textContent = objectName;
+  objectParentValue.id = `object-${objectName}-parent`;
+  objectCountValue.id = `object-${objectName}-count`;
+  objectParentLabel.setAttribute('for', objectParentValue.id);
+  objectCountLabel.setAttribute('for', objectCountValue.id);
 
   // Clone and prep the fields and field elements.
   const fieldWrapper = objectDetails.querySelector('ul');
