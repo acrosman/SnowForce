@@ -505,7 +505,7 @@ const handlers = {
       if (obj !== undefined) {
         conn.sobject(obj).describe().then((response) => {
           completedObjects += 1;
-          proposedSchema[response.name] = buildFields(response.fields);
+          proposedSchema[response.name] = buildFields(response.name, response.fields);
           allObjects[response.name] = response;
           // Send Object's Schema to interface for review.
           mainWindow.webContents.send('response_object_schema', {
