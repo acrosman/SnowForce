@@ -507,6 +507,7 @@ const handlers = {
           completedObjects += 1;
           proposedSchema[response.name] = buildFields(response.name, response.fields);
           allObjects[response.name] = response;
+          updateLoader(`Processed ${completedObjects} of ${args.objects.length} Object Describes`);
           // Send Object's Schema to interface for review.
           mainWindow.webContents.send('response_object_schema', {
             status: completedObjects === args.objects.length,
@@ -518,7 +519,6 @@ const handlers = {
             limitInfo: conn.limitInfo,
             request: args,
           });
-          updateLoader(`Loaded ${completedObjects} of ${args.objects.length} Object Describes`);
         }, (err) => {
           logMessage('Field Fetch', 'Error', `Error loading describe for ${obj}: ${err} `);
         });
