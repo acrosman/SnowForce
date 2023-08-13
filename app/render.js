@@ -382,7 +382,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   objectCountLabel.setAttribute('for', objectCountValue.id);
 
   // Clone and prep the fields and field elements.
-  const fieldWrapper = objectDetails.querySelector('ul');
+  const fieldWrapper = objectDetails.querySelector('.object-field-responses');
   const fldNames = Object.getOwnPropertyNames(fieldSchema);
   for (let i = 0; i < fldNames.length; i += 1) {
     const fieldDetail = fldTemplate.content.cloneNode(true);
@@ -396,7 +396,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
     label.setAttribute('for', textareaId);
     textArea.textContent = fieldSchema[fldNames[i]];
 
-    insertSorted(fieldWrapper, fieldDetail, fldNames[i], 'li');
+    insertSorted(fieldWrapper, fieldDetail, fldNames[i], '.field-details-wrapper');
   }
 
   // Insert new structures.
