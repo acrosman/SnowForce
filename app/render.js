@@ -632,7 +632,7 @@ const displayObjectSchema = (objectName, schema, complete, orgId) => {
   // TODO: Convert to native JS
   $('#btn-generate-recipe').prop('disabled', false);
   $('#btn-save-sf-schema').prop('disabled', false);
-  $('#nav-schema-tab').tab('show');
+  $('#nav-recipe-tab').tab('show');
   hideLoader();
 };
 
