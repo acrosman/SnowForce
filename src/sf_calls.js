@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const electron = require('electron'); // eslint-disable-line
 const jsforce = require('jsforce');
+const YAML = require('yaml');
 
 // Get the dialog library from Electron
 const { dialog } = electron;
@@ -365,6 +366,37 @@ const saveSchemaToFile = () => {
 };
 
 /**
+ * Open a save dialogue and write recipe to a file.
+ * @param {YAML.Document} recipeDocument The object structure of the recipe file to write.
+ */
+const saveRecipeFile = (recipeDocument) => {
+  const dialogOptions = {
+    title: 'Save Recipe to File',
+    message: 'Create Recipe',
+  };
+
+  dialog.showSaveDialog(mainWindow, dialogOptions).then((response) => {
+    if (response.canceled) { return; }
+
+    let fileName = response.filePath;
+
+    if (path.extname(fileName).toLowerCase() !== '.yml') {
+      fileName = `${fileName}.yml`;
+    }
+
+    fs.writeFile(fileName, recipeDocument.toString(), (err) => {
+      if (err) {
+        logMessage('Save', 'Error', `Unable to save file: ${err}`);
+      } else {
+        logMessage('Save', 'Info', `Recipe saved to ${fileName}`);
+      }
+    });
+  }).catch((err) => {
+    logMessage('Save', 'Error', `Saved failed after dialog: ${err}`);
+  });
+};
+
+/**
  * List of remote call handlers for using with IPC.
  */
 const handlers = {
@@ -487,7 +519,6 @@ const handlers = {
    * Get a list of all fields on a provided list of objects.
    * @param {*} event Standard message event.
    * @param {*} args Arguments from the interface.
-   * @returns True.
    */
   sf_getObjectFields: (event, args) => {
     const conn = new jsforce.Connection(sfConnections[args.org]);
@@ -524,6 +555,34 @@ const handlers = {
         });
       }
     });
+  },
+  /**
+   * Save the recipe to a file.
+   * @param {*} event Standard message event.
+   * @param {*} args Arguments from the interface.
+   */
+  save_recipe: (event, args) => {
+    // TODO: Break this function into a class that wraps Document and does all the things needed.
+    const recipeFile = new YAML.Document();
+
+    recipeFile.commentBefore('Generated Snowfakery Recipe. Please review and modify before use.');
+    const objectNames = Object.getOwnPropertyNames(args.objects);
+    let fieldDetails = {};
+    let fieldNames = [];
+    for (let i = 0; i < objectNames.length; i += 1) {
+      fieldNames = Object.getOwnPropertyNames(args.objects[objectNames[i]].fields);
+      fieldDetails = {};
+      for (let j = 0; j < fieldNames.length; i += 1) {
+        fieldDetails[fieldNames[j]] = args.objects[objectNames[i]].fields[fieldNames[j]];
+      }
+      recipeFile.createNode({
+        object: objectNames[i],
+        count: args.objects[objectNames[i]].count,
+        fields: fieldDetails,
+      });
+    }
+
+    saveRecipeFile(recipeFile);
   },
   /**
    * Send a log message to message console window.

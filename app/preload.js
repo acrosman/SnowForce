@@ -14,6 +14,7 @@ contextBridge.exposeInMainWorld(
         'get_preferences',
         'load_schema',
         'log_message',
+        'save_recipe',
         'save_schema',
         'sf_describeGlobal',
         'sf_getObjectFields',

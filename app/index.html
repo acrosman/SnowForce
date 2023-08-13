@@ -245,14 +245,14 @@
                                                 <div class="">
                                                     <label for="" class="form-label object-setting-parent">
                                                         Parent Object</label>
-                                                    <input type="text" class="form-control object-setting-parent" id=""
-                                                        placeholder="">
+                                                    <input type="text" data-object="" data-isParent="true"
+                                                        class="form-control object-setting-parent" id="" placeholder="">
                                                 </div>
                                                 <div class="">
                                                     <label for="" class="form-label object-setting-count">
                                                         Object Count</label>
-                                                    <input type="number" class="form-control object-setting-count" id=""
-                                                        placeholder="">
+                                                    <input type="number" data-object="" data-isCount="true" ;
+                                                        class="form-control object-setting-count" id="" placeholder="">
                                                 </div>
                                                 <h5 class="">Fields</h5>
                                                 <div class="object-field-responses"></div>
@@ -263,7 +263,8 @@
                                 <template id="field-detail-template">
                                     <div class="field-details-wrapper" data-name="">
                                         <label for="" class="form-label">Field Name</label>
-                                        <textarea class="form-control field-detail-textarea" id="" rows="3"></textarea>
+                                        <textarea class="form-control field-detail-textarea" data-object="" id=""
+                                            rows="3"></textarea>
                                     </div>
                                 </template>
                                 <form>

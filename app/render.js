@@ -378,6 +378,8 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   btn.textContent = objectName;
   objectParentValue.id = `object-${objectName}-parent`;
   objectCountValue.id = `object-${objectName}-count`;
+  objectParentValue.dataset.object = objectName;
+  objectCountValue.dataset.object = objectName;
   objectParentLabel.setAttribute('for', objectParentValue.id);
   objectCountLabel.setAttribute('for', objectCountValue.id);
 
@@ -391,10 +393,11 @@ const insertObjectSchema = (objectName, fieldSchema) => {
     const textareaId = `field-details-${fldNames[i]}-statement`;
     label.id = `field-details-${fldNames[i]}`;
     textArea.id = textareaId;
+    textArea.dataset.object = objectName;
+    textArea.textContent = fieldSchema[fldNames[i]];
     label.parentElement.dataset.name = fldNames[i];
     label.textContent = fldNames[i];
     label.setAttribute('for', textareaId);
-    textArea.textContent = fieldSchema[fldNames[i]];
 
     insertSorted(fieldWrapper, fieldDetail, fldNames[i], '.field-details-wrapper');
   }
@@ -674,7 +677,7 @@ document.getElementById('btn-fetch-objects').addEventListener('click', () => {
 
 // Fetch Object Field lists
 document.getElementById('btn-fetch-details').addEventListener('click', () => {
-  const activeCheckboxes = document.querySelectorAll('input[type=checkbox]:checked');
+  const activeCheckboxes = document.querySelectorAll('#results-table input[type=checkbox]:checked');
   const selectedObjects = [];
   for (let i = 0; i < activeCheckboxes.length; i += 1) {
     selectedObjects.push(activeCheckboxes[i].dataset.objectName);
@@ -694,6 +697,37 @@ document.getElementById('btn-save-sf-schema').addEventListener('click', () => {
 // Add trigger for load schema process.
 document.getElementById('btn-load-sf-schema').addEventListener('click', () => {
   window.api.send('load_schema');
+});
+
+// Add trigger for save recipe process.
+document.getElementById('btn-generate-recipe').addEventListener('click', () => {
+  const objects = document.querySelectorAll('#results-object-viewer input[type=text]');
+  const proposedFields = {};
+  let thisField = { fields: {} };
+  // Extract the list of objects and their settings
+  objects.forEach((input) => {
+    thisField = { fields: {} };
+    if (!Object.prototype.hasOwnProperty.call(proposedFields, input.dataset.object)) {
+      thisField = proposedFields[input.dataset.object];
+    }
+    if (Object.prototype.hasOwnProperty.call(input.dataset.object, 'isParent')) {
+      thisField.parent = input.value;
+    } else {
+      thisField.count = input.value;
+    }
+    proposedFields[input.dataset.object] = thisField;
+  });
+
+  // Extract the proposed text for each field
+  const fields = document.querySelectorAll('#results-object-viewer textarea');
+  fields.forEach((field) => {
+    proposedFields[field.dataset.object].fields = field.textContent;
+  });
+
+  window.api.send('save_recipe', {
+    org: document.getElementById('active-org').value,
+    objects: proposedFields,
+  });
 });
 
 // ===== Response handlers from IPC Messages to render context ======
