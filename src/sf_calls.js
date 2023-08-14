@@ -565,7 +565,7 @@ const handlers = {
     // TODO: Break this function into a class that wraps Document and does all the things needed.
     const recipeFile = new YAML.Document();
 
-    recipeFile.commentBefore('Generated Snowfakery Recipe. Please review and modify before use.');
+    recipeFile.commentBefore = 'Generated Snowfakery Recipe. Please review and modify before use.';
     const objectNames = Object.getOwnPropertyNames(args.objects);
     let fieldDetails = {};
     let fieldNames = [];

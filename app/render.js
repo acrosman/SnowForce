@@ -703,14 +703,13 @@ document.getElementById('btn-load-sf-schema').addEventListener('click', () => {
 document.getElementById('btn-generate-recipe').addEventListener('click', () => {
   const objects = document.querySelectorAll('#results-object-viewer input[type=text]');
   const proposedFields = {};
-  let thisField = { fields: {} };
   // Extract the list of objects and their settings
   objects.forEach((input) => {
-    thisField = { fields: {} };
-    if (!Object.prototype.hasOwnProperty.call(proposedFields, input.dataset.object)) {
+    let thisField = { fields: {}, parent: null, count: null };
+    if (Object.prototype.hasOwnProperty.call(proposedFields, input.dataset.object)) {
       thisField = proposedFields[input.dataset.object];
     }
-    if (Object.prototype.hasOwnProperty.call(input.dataset.object, 'isParent')) {
+    if (Object.prototype.hasOwnProperty.call(input.dataset, 'isparent')) {
       thisField.parent = input.value;
     } else {
       thisField.count = input.value;
