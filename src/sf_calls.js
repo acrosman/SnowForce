@@ -572,7 +572,7 @@ const handlers = {
     for (let i = 0; i < objectNames.length; i += 1) {
       fieldNames = Object.getOwnPropertyNames(args.objects[objectNames[i]].fields);
       fieldDetails = {};
-      for (let j = 0; j < fieldNames.length; i += 1) {
+      for (let j = 0; j < fieldNames.length; j += 1) {
         fieldDetails[fieldNames[j]] = args.objects[objectNames[i]].fields[fieldNames[j]];
       }
       recipeFile.createNode({

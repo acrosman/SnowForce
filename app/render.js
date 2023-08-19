@@ -394,6 +394,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
     label.id = `field-details-${fldNames[i]}`;
     textArea.id = textareaId;
     textArea.dataset.object = objectName;
+    textArea.dataset.field = fldNames[i];
     textArea.textContent = fieldSchema[fldNames[i]];
     label.parentElement.dataset.name = fldNames[i];
     label.textContent = fldNames[i];
@@ -705,22 +706,22 @@ document.getElementById('btn-generate-recipe').addEventListener('click', () => {
   const proposedFields = {};
   // Extract the list of objects and their settings
   objects.forEach((input) => {
-    let thisField = { fields: {}, parent: null, count: null };
+    let thisObject = { fields: {}, parent: null, count: null };
     if (Object.prototype.hasOwnProperty.call(proposedFields, input.dataset.object)) {
-      thisField = proposedFields[input.dataset.object];
+      thisObject = proposedFields[input.dataset.object];
     }
     if (Object.prototype.hasOwnProperty.call(input.dataset, 'isparent')) {
-      thisField.parent = input.value;
+      thisObject.parent = input.value;
     } else {
-      thisField.count = input.value;
+      thisObject.count = input.value;
     }
-    proposedFields[input.dataset.object] = thisField;
+    proposedFields[input.dataset.object] = thisObject;
   });
 
   // Extract the proposed text for each field
   const fields = document.querySelectorAll('#results-object-viewer textarea');
   fields.forEach((field) => {
-    proposedFields[field.dataset.object].fields = field.textContent;
+    proposedFields[field.dataset.object].fields[field.dataset.field] = field.textContent;
   });
 
   window.api.send('save_recipe', {
