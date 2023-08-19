@@ -563,23 +563,25 @@ const handlers = {
    */
   save_recipe: (event, args) => {
     // TODO: Break this function into a class that wraps Document and does all the things needed.
-    const recipeFile = new YAML.Document();
+    const recipeFile = new YAML.Document([]);
 
     recipeFile.commentBefore = 'Generated Snowfakery Recipe. Please review and modify before use.';
     const objectNames = Object.getOwnPropertyNames(args.objects);
     let fieldDetails = {};
     let fieldNames = [];
+    let node;
     for (let i = 0; i < objectNames.length; i += 1) {
       fieldNames = Object.getOwnPropertyNames(args.objects[objectNames[i]].fields);
       fieldDetails = {};
       for (let j = 0; j < fieldNames.length; j += 1) {
         fieldDetails[fieldNames[j]] = args.objects[objectNames[i]].fields[fieldNames[j]];
       }
-      recipeFile.createNode({
+      node = recipeFile.createNode({
         object: objectNames[i],
         count: args.objects[objectNames[i]].count,
         fields: fieldDetails,
       });
+      recipeFile.add(node);
     }
 
     saveRecipeFile(recipeFile);
