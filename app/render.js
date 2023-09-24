@@ -380,6 +380,7 @@ const insertObjectSchema = (objectName, fieldSchema) => {
   objectCountValue.id = `object-${objectName}-count`;
   objectParentValue.dataset.object = objectName;
   objectCountValue.dataset.object = objectName;
+  objectCountValue.value = 1;
   objectParentLabel.setAttribute('for', objectParentValue.id);
   objectCountLabel.setAttribute('for', objectCountValue.id);
 
