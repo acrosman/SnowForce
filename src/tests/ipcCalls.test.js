@@ -1,5 +1,5 @@
 // The actual module we're testing.
-const sfcalls = require('../sf_calls');
+const sfcalls = require('../ipcCalls');
 
 // Provide a basic test of public elements of the module.
 test('Validate exports', () => {
