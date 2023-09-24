@@ -22,7 +22,7 @@ const getCurrentPreferences = () => {
   fs.ensureFileSync(settingsPath);
 
   const preferences = {
-    theme: 'Darkly',
+    theme: 'Flatly',
     picklists: {
       unrestricted: true,
       allowBlanks: true,
