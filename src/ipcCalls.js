@@ -254,6 +254,28 @@ const buildFields = (objectName, fieldList) => {
 };
 
 /**
+ * extractChildren: Return a list of the active child relationships parsed from the describe.
+ * @param {*} relationshipsObject The object describe childRelationships object.
+ * @returns A collection of the active relationships for this object.
+ */
+const extractChildren = (relationshipsObject) => {
+  const activeChildren = {};
+
+  for (let f = 0; f < relationshipsObject.length; f += 1) {
+    if (!relationshipsObject[f].deprecatedAndHidden) {
+      activeChildren[relationshipsObject[f].childSObject] = {
+        childSObject: relationshipsObject[f].childSObject,
+        cascadeDelete: relationshipsObject[f].cascadeDelete,
+        field: relationshipsObject[f].field,
+        relationshipName: relationshipsObject[f].relationshipName,
+      };
+    }
+  }
+
+  return activeChildren;
+};
+
+/**
  * Opens a dialog and starts the schema load process with the result.
  */
 const loadSchemaFromFile = () => {
@@ -515,6 +537,7 @@ const handlers = {
 
     conn.describeGlobal().then(success, fail);
   },
+
   /**
    * Get a list of all fields on a provided list of objects.
    * @param {*} event Standard message event.
@@ -536,7 +559,8 @@ const handlers = {
       if (obj !== undefined) {
         conn.sobject(obj).describe().then((response) => {
           completedObjects += 1;
-          proposedSchema[response.name] = buildFields(response.name, response.fields);
+          proposedSchema[response.name].fields = buildFields(response.name, response.fields);
+          proposedSchema[response.name].children = extractChildren(response.childRelationships);
           allObjects[response.name] = response;
           updateLoader(`Processed ${completedObjects} of ${args.objects.length} Object Describes`);
           // Send Object's Schema to interface for review.
@@ -551,7 +575,9 @@ const handlers = {
             request: args,
           });
         }, (err) => {
+          completedObjects += 1;
           logMessage('Field Fetch', 'Error', `Error loading describe for ${obj}: ${err} `);
+          updateLoader(`Processed ${completedObjects} of ${args.objects.length} Object Describes`);
         });
       }
     });
